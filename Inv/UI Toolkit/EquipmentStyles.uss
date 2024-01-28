@@ -1,0 +1,23 @@
+.scroll-view {
+  flex-grow: 1;
+  overflow: scroll;
+}
+
+.slot-container {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+.slot {
+  width: 64px;
+  height: 64px;
+  background-image: url("Assets/Resources/ItemIcons/2.png");
+  margin-bottom: 8px;
+}
+
+.stat {
+  font-size: 16px;
+  margin-bottom: 4px;
+}
