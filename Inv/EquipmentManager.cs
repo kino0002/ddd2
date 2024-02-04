@@ -23,14 +23,11 @@ public class EquipmentManager : MonoBehaviour
         equipmentSlots = new List<EquipmentSlot>
         {
             new EquipmentSlot { slotType = "PrimarySlot" },
+            new EquipmentSlot { slotType = "PouchSlot" },
             new EquipmentSlot { slotType = "HeadSlot" },
             new EquipmentSlot { slotType = "ChestSlot" },
             new EquipmentSlot { slotType = "LegsSlot" },
-            new EquipmentSlot { slotType = "BootsSlot" },
-            new EquipmentSlot { slotType = "SecondarySlot" },
-            new EquipmentSlot { slotType = "NecklaceSlot" },
             new EquipmentSlot { slotType = "BagSlot" },
-            new EquipmentSlot { slotType = "BeltSlot" },
             new EquipmentSlot { slotType = "RingSlot" }
         };
     }

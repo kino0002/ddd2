@@ -34,11 +34,8 @@ public enum EquipmentSlot
     HeadSlot,
     ChestSlot,
     LegsSlot,
-    BootsSlot,
-    SecondarySlot,
-    NecklaceSlot,
+    PouchSlot,
     BagSlot,
-    BeltSlot,
     RingSlot
 }
 

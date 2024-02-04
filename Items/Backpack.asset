@@ -23,7 +23,8 @@ MonoBehaviour:
   stackSize: 0
   maxStack: 0
   Durability: 0
+  isHorizontal: 1
   Slot: 7
   Armor: 0
   slotType: BagSlot
-  maxStorageSpace: 3
+  maxStorageSpace: 10
