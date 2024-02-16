@@ -30,7 +30,62 @@ public class EquipmentManager : MonoBehaviour
             new EquipmentSlot { slotType = "BagSlot" },
             new EquipmentSlot { slotType = "RingSlot" }
         };
+        hotbarSlots = new List<HotbarSlot>
+    {
+        new HotbarSlot { slotId = 0 },
+        new HotbarSlot { slotId = 1 },
+        new HotbarSlot { slotId = 2 },
+        new HotbarSlot { slotId = 3 }
+    };
     }
+
+        [System.Serializable]
+  public class HotbarSlot
+    {
+        public int slotId;
+        public Item item; // Assuming 'Item' is your base item class
+    }
+
+    [SerializeField]
+    private List<HotbarSlot> hotbarSlots = new List<HotbarSlot>();
+
+    public List<HotbarSlot> GetHotbarSlots()
+    {
+        return hotbarSlots;
+    }
+
+    public void AddItemToHotbar(Item item, int slotId)
+    {
+        var slot = hotbarSlots.Find(s => s.slotId == slotId);
+        if (slot != null)
+        {
+            slot.item = item;
+        }
+        else
+        {
+            hotbarSlots.Add(new HotbarSlot { slotId = slotId, item = item });
+        }
+
+        // Notify InventoryUI to update
+        OnHotbarChanged?.Invoke();
+    }
+
+    public event Action OnHotbarChanged;
+
+
+public bool TryAddItemToHotbar(Item item)
+{
+    // Find the first empty hotbar slot
+    var emptySlot = hotbarSlots.Find(slot => slot.item == null);
+    if (emptySlot != null)
+    {
+        emptySlot.item = item;
+        OnHotbarChanged?.Invoke(); // Invoke hotbar update event
+        return true; // Successfully added to hotbar
+    }
+    return false; // No available slot in hotbar
+}
+
 
     public bool EquipItem(EquipmentDefinition newItem)
     {

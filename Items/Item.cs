@@ -48,14 +48,12 @@ public enum WeaponType
 }
 
 [CreateAssetMenu(fileName = "New Weapon", menuName = "Data/Weapon")]
-public class WeaponDefinition : EquipmentDefinition, IEquippable
-{
+public class WeaponDefinition : Item, IEquippable {
     public WeaponType Type;
     public int Damage;
 
-    public void Equip(EquipmentManager equipmentManager)
-    {
-        equipmentManager.EquipItem(this);
+    public void Equip(EquipmentManager equipmentManager) {
+        // Equip logic specific to weapons
     }
 }
 

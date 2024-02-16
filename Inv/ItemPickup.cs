@@ -53,7 +53,12 @@ public class ItemPickup : MonoBehaviour
         {
             EquipmentManager equipmentManager = other.GetComponent<EquipmentManager>();
             if (equipmentManager == null) return;
-
+// Try adding to hotbar first
+        if (equipmentManager.TryAddItemToHotbar(item))
+        {
+            Destroy(gameObject); // Destroy the item pickup after adding to the hotbar
+            return; // Exit as item has been handled
+        }
             if (item is EquipmentDefinition equipment)
             {
                 EquipmentManager.EquipmentSlot slot = equipmentManager.GetEquipmentSlot(equipment.slotType);

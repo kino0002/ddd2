@@ -28,13 +28,49 @@ public class InventoryUI : MonoBehaviour
         styleSheet = Resources.Load<StyleSheet>("inve");
 
         dragAndDropManager = GetComponent<InventoryDragAndDrop>();
+ equipmentManager.OnHotbarChanged += GenerateHotbarUI;
+        GenerateHotbarUI();
     }
+
+private void GenerateHotbarUI()
+{
+    var hotbarContainer = root.Q<VisualElement>("HotbarContainer");
+    hotbarContainer.Clear();
+
+    foreach (var slot in equipmentManager.GetHotbarSlots())
+    {
+        var slotElement = new VisualElement();
+        slotElement.AddToClassList("hotbar-slot"); // Use this class for basic styling
+
+        if (slot.item != null)
+        {
+            var icon = new Image { sprite = slot.item.Icon };
+            slotElement.Add(icon);
+            slotElement.AddToClassList("ItemSlotWithItem"); // Use this for slots with items
+        }
+        else
+        {
+            slotElement.AddToClassList("ItemSlot"); // Use this for empty slots
+        }
+
+        // Apply the stylesheet to each slot element if it's not globally applied
+        if (styleSheet != null)
+        {
+            slotElement.styleSheets.Add(styleSheet);
+        }
+
+        hotbarContainer.Add(slotElement);
+    }
+}
+
 
     private void OnDestroy()
     {
+        // Unsubscribe from events to avoid memory leaks
         if (equipmentManager != null)
         {
             equipmentManager.OnEquipmentChanged -= UpdateEquipmentSlot;
+            equipmentManager.OnHotbarChanged -= GenerateHotbarUI;
         }
     }
 
