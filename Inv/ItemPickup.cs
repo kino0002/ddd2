@@ -58,22 +58,25 @@ public class ItemPickup : MonoBehaviour
             {
                 EquipmentManager.EquipmentSlot slot = equipmentManager.GetEquipmentSlot(equipment.slotType);
 
+                // Check if the slot is for a bag and if there's already a bag equipped
+                if (slot != null && equipment is StorageItem && slot.equippedItem != null)
+                {
+                    // Prevent picking up a bag with items if there's already a bag equipped
+                    if (StoredItems != null && StoredItems.Count > 0)
+                    {
+                        Debug.Log("Cannot pick up a bag with items when another bag is already equipped.");
+                        return; // Exit without picking up the bag
+                    }
+                }
+
                 // If there's no item equipped in the slot, or if it's an empty bag, try to equip the new item
-                if (slot != null && (slot.equippedItem == null || (slot.equippedItem is StorageItem && slot.storageContainer.IsEmpty())))
+                if (slot != null && slot.equippedItem == null)
                 {
                     bool equipped = equipmentManager.EquipItem(equipment);
-
                     if (equipped)
                     {
-                        // If the new item has stored items, transfer them to the newly equipped item's storage
-                        if (StoredItems != null && StoredItems.Count > 0)
-                        {
-                            slot.storageContainer.AddItems(StoredItems);
-                            StoredItems.Clear();
-                        }
-
+                        TransferStoredItems(equipmentManager, slot);
                         Destroy(gameObject); // Destroy the item pickup after successful equip
-                        FindObjectOfType<InventoryUI>().UpdateStorageDisplay(); // Refresh UI
                         return;
                     }
                 }
@@ -84,6 +87,18 @@ public class ItemPickup : MonoBehaviour
         }
     }
 
+    private void TransferStoredItems(EquipmentManager equipmentManager, EquipmentManager.EquipmentSlot slot)
+    {
+        if (StoredItems != null && StoredItems.Count > 0)
+        {
+            foreach (var itemStack in StoredItems)
+            {
+                slot.storageContainer.AddItems(new List<ItemStack> { itemStack }); // Ensure AddItems method exists
+            }
+            StoredItems.Clear(); // Clear StoredItems after transferring
+            FindObjectOfType<InventoryUI>().UpdateStorageDisplay(); // Refresh UI
+        }
+    }
 
 
     private void HandleItemAddition(EquipmentManager equipmentManager)

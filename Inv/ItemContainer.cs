@@ -81,6 +81,20 @@ public class ItemContainer
     {
         return Items.Count < MaxSize;
     }
+
+    public bool IsEmpty()
+    {
+        return Items.Count == 0;
+    }
+    public void AddItems(List<ItemStack> itemsToAdd)
+    {
+        foreach (var itemStack in itemsToAdd)
+        {
+            AddItem(itemStack.Item, itemStack.Quantity);
+        }
+    }
+
+
 }
 
 [System.Serializable]
