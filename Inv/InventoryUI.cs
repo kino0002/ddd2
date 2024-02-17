@@ -28,40 +28,40 @@ public class InventoryUI : MonoBehaviour
         styleSheet = Resources.Load<StyleSheet>("inve");
 
         dragAndDropManager = GetComponent<InventoryDragAndDrop>();
- equipmentManager.OnHotbarChanged += GenerateHotbarUI;
+        equipmentManager.OnHotbarChanged += GenerateHotbarUI;
         GenerateHotbarUI();
     }
 
-private void GenerateHotbarUI()
-{
-    var hotbarContainer = root.Q<VisualElement>("HotbarContainer");
-    hotbarContainer.Clear();
-
-    foreach (var slot in equipmentManager.GetHotbarSlots())
+    private void GenerateHotbarUI()
     {
-        var slotElement = new VisualElement();
-        slotElement.AddToClassList("hotbar-slot"); // Use this class for basic styling
+        var hotbarContainer = root.Q<VisualElement>("HotbarContainer");
+        hotbarContainer.Clear();
 
-        if (slot.item != null)
+        foreach (var slot in equipmentManager.GetHotbarSlots())
         {
-            var icon = new Image { sprite = slot.item.Icon };
-            slotElement.Add(icon);
-            slotElement.AddToClassList("ItemSlotWithItem"); // Use this for slots with items
-        }
-        else
-        {
-            slotElement.AddToClassList("ItemSlot"); // Use this for empty slots
-        }
+            var slotElement = new VisualElement();
+            slotElement.AddToClassList("hotbar-slot"); // Use this class for basic styling
 
-        // Apply the stylesheet to each slot element if it's not globally applied
-        if (styleSheet != null)
-        {
-            slotElement.styleSheets.Add(styleSheet);
-        }
+            if (slot.item != null)
+            {
+                var icon = new Image { sprite = slot.item.Icon };
+                slotElement.Add(icon);
+                slotElement.AddToClassList("ItemSlotWithItem"); // Use this for slots with items
+            }
+            else
+            {
+                slotElement.AddToClassList("ItemSlot"); // Use this for empty slots
+            }
 
-        hotbarContainer.Add(slotElement);
+            // Apply the stylesheet to each slot element if it's not globally applied
+            if (styleSheet != null)
+            {
+                slotElement.styleSheets.Add(styleSheet);
+            }
+
+            hotbarContainer.Add(slotElement);
+        }
     }
-}
 
 
     private void OnDestroy()

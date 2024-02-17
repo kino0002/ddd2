@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class ItemDropping
 {
@@ -15,15 +16,15 @@ public class ItemDropping
         this.playerMovementScript = playerMovementScript;
         this.throwForce = throwForce;
 
-        if(this.droppedItemPrefab == null)
+        if (this.droppedItemPrefab == null)
         {
             Debug.LogError("Dropped item prefab is null!");
         }
     }
 
-    public GameObject CreateDroppedItemInstance(EquipmentDefinition itemToBeDropped, Vector2 mousePosition)
+    public GameObject CreateDroppedItemInstance(EquipmentDefinition itemToBeDropped, Vector2 mousePosition, EquipmentManager equipmentManager)
     {
-        if(this.droppedItemPrefab == null)
+        if (droppedItemPrefab == null)
         {
             Debug.LogError("Dropped item prefab is null!");
             return null;
@@ -31,17 +32,25 @@ public class ItemDropping
 
         GameObject droppedItemInstance = Object.Instantiate(droppedItemPrefab, playerCharacter.transform.position, Quaternion.identity);
         ItemPickup itemPickup = droppedItemInstance.GetComponent<ItemPickup>();
-
         if (itemPickup != null)
         {
             itemPickup.item = itemToBeDropped;
 
+            // Find the equipment slot for the item being dropped
+            EquipmentManager.EquipmentSlot slot = equipmentManager.GetEquipmentSlot(itemToBeDropped.slotType);
+            if (slot != null && slot.storageContainer != null && slot.storageContainer.Items.Count > 0)
+            {
+                // Pass the stored items to the dropped item instance
+                itemPickup.StoredItems = new List<ItemStack>(slot.storageContainer.GetItems());
+                // Clear the items from the original container to avoid duplication
+                slot.storageContainer.Items.Clear();
+            }
+
+            // Calculate throw direction and apply force
             Vector2 mouseWorldPosition = Camera.main.ScreenToWorldPoint(mousePosition);
             Vector2 throwDirection = (mouseWorldPosition - (Vector2)playerCharacter.transform.position).normalized;
-
             float halfItemWidth = itemPickup.GetComponent<SpriteRenderer>().bounds.extents.x;
             droppedItemInstance.transform.position += (Vector3)throwDirection * halfItemWidth;
-
             Vector3 force = new Vector3(playerMovementScript.side * throwForce, throwForce, 0);
             Throw(itemPickup, force, playerMovementScript.GetComponent<Rigidbody2D>().velocity);
         }
@@ -52,6 +61,7 @@ public class ItemDropping
 
         return droppedItemInstance;
     }
+
 
     private void Throw(ItemPickup itemPickup, Vector3 force, Vector3 playerVelocity)
     {
@@ -65,10 +75,10 @@ public class ItemDropping
         {
             rb.AddForce(force + playerVelocity, ForceMode2D.Impulse);
             itemPickup.SetTimeSinceThrown(Time.time);
-            itemPickup.StartCoroutine(DisablePickupTemporarily(itemPickup));
+            yield return new WaitForSeconds(itemPickup.pickupDelay); // Wait for pickup delay
         }
-        yield return null;
     }
+
 
     private IEnumerator DisablePickupTemporarily(ItemPickup itemPickup)
     {

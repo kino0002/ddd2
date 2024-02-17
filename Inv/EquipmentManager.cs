@@ -39,8 +39,8 @@ public class EquipmentManager : MonoBehaviour
     };
     }
 
-        [System.Serializable]
-  public class HotbarSlot
+    [System.Serializable]
+    public class HotbarSlot
     {
         public int slotId;
         public Item item; // Assuming 'Item' is your base item class
@@ -73,18 +73,18 @@ public class EquipmentManager : MonoBehaviour
     public event Action OnHotbarChanged;
 
 
-public bool TryAddItemToHotbar(Item item)
-{
-    // Find the first empty hotbar slot
-    var emptySlot = hotbarSlots.Find(slot => slot.item == null);
-    if (emptySlot != null)
+    public bool TryAddItemToHotbar(Item item)
     {
-        emptySlot.item = item;
-        OnHotbarChanged?.Invoke(); // Invoke hotbar update event
-        return true; // Successfully added to hotbar
+        // Find the first empty hotbar slot
+        var emptySlot = hotbarSlots.Find(slot => slot.item == null);
+        if (emptySlot != null)
+        {
+            emptySlot.item = item;
+            OnHotbarChanged?.Invoke(); // Invoke hotbar update event
+            return true; // Successfully added to hotbar
+        }
+        return false; // No available slot in hotbar
     }
-    return false; // No available slot in hotbar
-}
 
 
     public bool EquipItem(EquipmentDefinition newItem)

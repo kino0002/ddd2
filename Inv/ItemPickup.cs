@@ -53,92 +53,75 @@ public class ItemPickup : MonoBehaviour
         {
             EquipmentManager equipmentManager = other.GetComponent<EquipmentManager>();
             if (equipmentManager == null) return;
-// Try adding to hotbar first
-        if (equipmentManager.TryAddItemToHotbar(item))
-        {
-            Destroy(gameObject); // Destroy the item pickup after adding to the hotbar
-            return; // Exit as item has been handled
-        }
+
             if (item is EquipmentDefinition equipment)
             {
                 EquipmentManager.EquipmentSlot slot = equipmentManager.GetEquipmentSlot(equipment.slotType);
-                if (slot != null && slot.equippedItem == null)
-                {
-                    if (equipment is IEquippable equippableItem)
-                    {
-                        equippableItem.Equip(equipmentManager);
 
-                        // If the item is a StorageItem and has stored items
-                        if (StoredItems != null && StoredItems.Count > 0 && slot.storageContainer != null)
+                // If there's no item equipped in the slot, or if it's an empty bag, try to equip the new item
+                if (slot != null && (slot.equippedItem == null || (slot.equippedItem is StorageItem && slot.storageContainer.IsEmpty())))
+                {
+                    bool equipped = equipmentManager.EquipItem(equipment);
+
+                    if (equipped)
+                    {
+                        // If the new item has stored items, transfer them to the newly equipped item's storage
+                        if (StoredItems != null && StoredItems.Count > 0)
                         {
-                            foreach (var itemStack in StoredItems)
-                            {
-                                // Ensure the item is added to the player's storage container
-                                slot.storageContainer.AddItem(itemStack.Item, itemStack.Quantity);
-                            }
+                            slot.storageContainer.AddItems(StoredItems);
+                            StoredItems.Clear();
                         }
-                        Destroy(gameObject);
-                    }
-                    InventoryUI instance = FindObjectOfType<InventoryUI>();
-                    if (instance != null)
-                    {
-                        instance.UpdateStorageDisplay();
+
+                        Destroy(gameObject); // Destroy the item pickup after successful equip
+                        FindObjectOfType<InventoryUI>().UpdateStorageDisplay(); // Refresh UI
+                        return;
                     }
                 }
-                else
-                {
-                    Debug.Log("Equipment slot is already in use.");
-                }
+            }
+
+            // If the item wasn't equipped (e.g., it's not an equipment item or the slot was occupied), try adding to the hotbar or storage
+            HandleItemAddition(equipmentManager);
+        }
+    }
 
 
+
+    private void HandleItemAddition(EquipmentManager equipmentManager)
+    {
+        if (!equipmentManager.TryAddItemToHotbar(item))
+        {
+            bool addedToStorage = AddItemToStorage(equipmentManager);
+            if (!addedToStorage)
+            {
+                Debug.Log("No space in hotbar, equipment slots, or storage.");
             }
             else
             {
-                bool canPickup = false;
-                foreach (var checkSlot in equipmentManager.GetEquipmentSlots())
-                {
-                    if (checkSlot.equippedItem is StorageItem && checkSlot.storageContainer != null)
-                    {
-                        if (checkSlot.storageContainer.CanAddItem(item, 1))
-                        {
-                            canPickup = true;
-                            break;
-                        }
-                    }
-                }
+                Destroy(gameObject);  // Destroy the item pickup after adding to storage
+            }
+        }
+        else
+        {
+            Destroy(gameObject);  // Destroy the item pickup after adding to the hotbar
+        }
+    }
 
-                if (canPickup)
+    private bool AddItemToStorage(EquipmentManager equipmentManager)
+    {
+        foreach (var slot in equipmentManager.GetEquipmentSlots())
+        {
+            if (slot.equippedItem is StorageItem && slot.storageContainer != null)
+            {
+                bool added = slot.storageContainer.AddItem(item, 1);
+                if (added)
                 {
-                    foreach (var addSlot in equipmentManager.GetEquipmentSlots())
-                    {
-                        if (addSlot.equippedItem is StorageItem && addSlot.storageContainer != null)
-                        {
-                            if (addSlot.storageContainer.AddItem(item, 1))
-                            {
-                                Destroy(gameObject);
-
-                                // Update the storage UI display
-                                InventoryUI instance = FindObjectOfType<InventoryUI>();
-                                if (instance != null)
-                                {
-                                    instance.UpdateStorageDisplay();
-                                    Debug.Log("Attempted to update storage display after item pickup.");
-                                }
-                                else
-                                {
-                                    Debug.LogWarning("InventoryUI instance not found in the scene.");
-                                }
-
-                                break;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    Debug.Log("Not enough space to pick up the item.");
+                    FindObjectOfType<InventoryUI>().UpdateStorageDisplay();
+                    return true;  // Item added to storage
                 }
             }
         }
+        return false;  // No space found in storage
     }
+
+
 }

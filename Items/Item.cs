@@ -13,7 +13,7 @@ public class Item : ScriptableObject
     public int stackSize;
     public int maxStack;
     public int Durability;
-    public bool isHorizontal = true; 
+    public bool isHorizontal = true;
 }
 
 [Serializable]
@@ -48,11 +48,13 @@ public enum WeaponType
 }
 
 [CreateAssetMenu(fileName = "New Weapon", menuName = "Data/Weapon")]
-public class WeaponDefinition : Item, IEquippable {
+public class WeaponDefinition : Item, IEquippable
+{
     public WeaponType Type;
     public int Damage;
 
-    public void Equip(EquipmentManager equipmentManager) {
+    public void Equip(EquipmentManager equipmentManager)
+    {
         // Equip logic specific to weapons
     }
 }

@@ -17,6 +17,7 @@ public class InventoryDragAndDrop : MonoBehaviour
     public float throwForce = 4f;
     [SerializeField] private GameObject droppedItemPrefab;
 
+
     private void Awake()
     {
         equipmentManager = Object.FindObjectOfType<EquipmentManager>();
@@ -46,7 +47,7 @@ public class InventoryDragAndDrop : MonoBehaviour
         {
             currentSlot = evt.currentTarget as VisualElement;
             Image slotIcon = currentSlot.Q<Image>();
-            
+
             if (slotIcon != null)
             {
                 slotIcon.style.opacity = 0.5f;
@@ -96,7 +97,7 @@ public class InventoryDragAndDrop : MonoBehaviour
             Debug.Log("Dropping item with Slot ID: " + slotId);  // Keep this line for debugging
 
             EquipmentManager.EquipmentSlot equipmentSlot = equipmentManager.GetEquipmentSlot(slotId);
-            
+
             if (equipmentSlot == null)
             {
                 Debug.LogError($"equipmentSlot is null for ID: {slotId}");
@@ -115,7 +116,8 @@ public class InventoryDragAndDrop : MonoBehaviour
             {
                 if (isDraggingOutside)
                 {
-                    itemDropping.CreateDroppedItemInstance(itemToBeDropped, evt.mousePosition);
+                    // Pass the equipmentManager instance to the CreateDroppedItemInstance method
+                    itemDropping.CreateDroppedItemInstance(itemToBeDropped, evt.mousePosition, equipmentManager);
                     equipmentManager.UnequipItemInstance(itemToBeDropped);
                 }
 
@@ -125,6 +127,7 @@ public class InventoryDragAndDrop : MonoBehaviour
             }
         }
     }
+
 
     private void OnGlobalMouseMove(MouseMoveEvent evt)
     {
