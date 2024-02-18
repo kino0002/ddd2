@@ -17,7 +17,6 @@ public class InventoryDragAndDrop : MonoBehaviour
     public float throwForce = 4f;
     [SerializeField] private GameObject droppedItemPrefab;
 
-
     private void Awake()
     {
         equipmentManager = Object.FindObjectOfType<EquipmentManager>();
@@ -28,7 +27,6 @@ public class InventoryDragAndDrop : MonoBehaviour
         }
 
         root = GetComponent<UIDocument>().rootVisualElement;
-
         root.RegisterCallback<MouseUpEvent>(OnGlobalMouseUp);
         root.RegisterCallback<MouseMoveEvent>(OnGlobalMouseMove);
 
@@ -69,65 +67,41 @@ public class InventoryDragAndDrop : MonoBehaviour
         }
     }
 
-    IEnumerator FadeIn(Image img, float duration)
+    private void OnGlobalMouseUp(MouseUpEvent evt)
     {
-        float startTime = Time.time;
-        while (img.style.opacity.value < 1f)
+        if (currentSlot != null && draggedItem != null)
         {
-            float t = (Time.time - startTime) / duration;
-            img.style.opacity = Mathf.SmoothStep(0f, 6f, t);
-            yield return null;
+            if (isDraggingOutside)
+            {
+                Item itemToBeDropped = GetDraggedItem(currentSlot);
+                if (itemToBeDropped != null)
+                {
+                    itemDropping.CreateDroppedItemInstanceGeneric(itemToBeDropped, evt.mousePosition, equipmentManager);
+                    RemoveItemFromInventory(itemToBeDropped);
+                }
+            }
+            CleanupDragState();
         }
     }
 
-    private void UpdateDraggedItemPosition(Vector2 mousePosition)
+
+    private void CleanupDragState()
     {
         if (draggedItem != null)
         {
-            draggedItem.style.left = mousePosition.x - draggedItem.layout.width / 2;
-            draggedItem.style.top = mousePosition.y - draggedItem.layout.height / 2;
+            root.Remove(draggedItem);
+            draggedItem = null;
         }
-    }
-
-    private void OnGlobalMouseUp(MouseUpEvent evt)
-    {
         if (currentSlot != null)
         {
-            string slotId = currentSlot.userData as string;
-            Debug.Log("Dropping item with Slot ID: " + slotId);  // Keep this line for debugging
-
-            EquipmentManager.EquipmentSlot equipmentSlot = equipmentManager.GetEquipmentSlot(slotId);
-
-            if (equipmentSlot == null)
-            {
-                Debug.LogError($"equipmentSlot is null for ID: {slotId}");
-                return;
-            }
-
-            EquipmentDefinition itemToBeDropped = equipmentSlot.equippedItem;
             Image slotIcon = currentSlot.Q<Image>();
-
             if (slotIcon != null)
             {
                 slotIcon.style.opacity = 1.0f;
             }
-
-            if (draggedItem != null)
-            {
-                if (isDraggingOutside)
-                {
-                    // Pass the equipmentManager instance to the CreateDroppedItemInstance method
-                    itemDropping.CreateDroppedItemInstance(itemToBeDropped, evt.mousePosition, equipmentManager);
-                    equipmentManager.UnequipItemInstance(itemToBeDropped);
-                }
-
-                root.Remove(draggedItem);
-                draggedItem = null;
-                currentSlot = null;
-            }
+            currentSlot = null;
         }
     }
-
 
     private void OnGlobalMouseMove(MouseMoveEvent evt)
     {
@@ -165,6 +139,39 @@ public class InventoryDragAndDrop : MonoBehaviour
             {
                 draggedItem.Q<Label>("DroppingLabel")?.RemoveFromHierarchy();
             }
+        }
+    }
+
+    private void UpdateDraggedItemPosition(Vector2 mousePosition)
+    {
+        if (draggedItem != null)
+        {
+            draggedItem.style.left = mousePosition.x - draggedItem.layout.width / 2;
+            draggedItem.style.top = mousePosition.y - draggedItem.layout.height / 2;
+        }
+    }
+
+    private Item GetDraggedItem(VisualElement slot)
+    {
+        // Implement the logic to retrieve the Item instance based on the slot's user data or other identifiers
+        // This is a placeholder, you'll need to adapt it to your inventory system
+        return null;
+    }
+
+    private void RemoveItemFromInventory(Item item)
+    {
+        // Implement the logic to remove the item from the inventory data structure
+        // This is a placeholder, you'll need to adapt it to your inventory system
+    }
+
+    IEnumerator FadeIn(Image img, float duration)
+    {
+        float startTime = Time.time;
+        while (img.style.opacity.value < 1f)
+        {
+            float t = (Time.time - startTime) / duration;
+            img.style.opacity = Mathf.SmoothStep(0f, 6f, t);
+            yield return null;
         }
     }
 }

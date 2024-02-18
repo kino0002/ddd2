@@ -61,6 +61,32 @@ public class ItemDropping
 
         return droppedItemInstance;
     }
+    public void CreateDroppedItemInstanceGeneric(Item item, Vector2 dropPosition, EquipmentManager equipmentManager)
+    {
+        // Ensure the droppedItemPrefab is set
+        if (droppedItemPrefab == null)
+        {
+            Debug.LogError("Dropped item prefab is null!");
+            return;
+        }
+
+        GameObject droppedItemInstance = GameObject.Instantiate(droppedItemPrefab, dropPosition, Quaternion.identity);
+
+        // Use ItemPickup component as a generic handler for dropped items if DroppedItemComponent does not exist
+        ItemPickup itemPickup = droppedItemInstance.GetComponent<ItemPickup>();
+        if (itemPickup != null)
+        {
+            // Assuming you have a way to assign the 'Item' instance to the 'ItemPickup' component
+            itemPickup.item = item; // This assignment might need adjustment based on your 'ItemPickup' implementation
+
+            // Additional logic here if needed, such as setting item properties, initializing visuals, etc.
+        }
+        else
+        {
+            Debug.LogError("ItemPickup component not found on the dropped item prefab.");
+        }
+    }
+
 
 
     private void Throw(ItemPickup itemPickup, Vector3 force, Vector3 playerVelocity)
